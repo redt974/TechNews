@@ -1,0 +1,52 @@
+/* Styles for the slider container */
+.slider-container {
+  padding: 25px 50px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Styles for the slider content */
+.slider {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+/* Styles for the left and right arrows */
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 35px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Styles for the left arrow */
+.left-arrow {
+  left: 10px;
+}
+
+/* Styles for the right arrow */
+.right-arrow {
+  right: 10px;
+}
+
+.arrow:hover {
+  background-color: #555;
+}
+
+/* Hidden and visible classes */
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.visible {
+  opacity: 1;
+  pointer-events: auto;
+}

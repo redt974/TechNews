@@ -1,0 +1,250 @@
+/* Header :*/
+
+.myHeader {
+  background-color: var(--primary-color);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin-bottom: 70px;
+}
+.top-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  margin: 0 50px;
+}
+#logo {
+  width: 250px;
+  height: 90px;
+  left: 0;
+  padding-top: 10px;
+  cursor: pointer;
+}
+/**/
+
+.toggle-btn {
+  color: var(--secondary-color);
+  display: none;
+}
+
+.barre-recherche{
+  display: none;
+}
+.nav-reseaux{
+  display: none;
+}
+.accueil{
+  display: none;
+}
+/**/
+.onglets {
+  font-family: Arial;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  list-style-type: none;
+  cursor: pointer;
+}
+.onglets > li {
+  margin-right: 20px;
+  margin-left: 20px;
+}
+.social-media-header{
+  display: none;
+} 
+.hidden {
+  display: none;
+}
+
+#icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+.header-right{
+  display: flex;
+  flex-direction: row;
+  list-style: none;
+  width: 150px;
+  align-items: center;
+  justify-content: space-between;
+}
+.connexion{
+  width: 35px;
+  height: 35px;
+  border: solid 2px var(--secondary-color);
+  border-radius: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} 
+
+/* CSS Animation : Header */
+
+.style {
+  position: relative;
+  text-decoration: none;
+  font-family: "Poppins", sans-serif;
+  color: var(--secondary-color);
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+.style:after {
+  content: "";
+  position: absolute;
+  background-color: blueviolet;
+  height: 3px;
+  width: 0;
+  left: 0; 
+  transition: 0.3s;
+}
+.style:hover {
+  color: #a0a0a0;
+}
+.style:hover:after {
+  width: 100%;
+}
+
+/* Tableau :*/
+
+.table {
+  border-collapse: collapse;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+}
+.scrolling-text, .slidering-text {
+  font-size: 24px;
+  color: white;
+  font-family:'Digital-7';
+}
+@font-face{
+  font-family:'Digital-7';
+  src: url("../../digital-7.regular.ttf");
+}
+
+.band{
+  background-color: blueviolet;
+  width:100vw;
+  height: 25px;
+}
+.scrolling-text-container {
+  height: 32px;
+  white-space: nowrap;
+  overflow: hidden;
+  position: absolute;
+  animation: scroll 15s linear infinite; 
+}
+.scrolling-text {
+  display: inline-block;
+  padding-right: 25px;
+}
+
+@keyframes scroll {
+  from {
+      transform: translateX(-100vw);
+  }
+  to {
+      transform: translateX(100vw);
+  }
+}
+
+/* https://www.1001fonts.com/digital+clock-fonts.html */
+  
+  @media screen and (max-width: 1190px) {
+    .barre-recherche{
+      width: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+    input {
+      margin-left: 15px;
+      margin-right: 15px;
+      border-radius: 12.5px;
+      padding: 5px;
+      flex: 1;
+    }
+    button {
+      all: unset;
+      width: 24px;
+      height: 27px;
+    }
+    .loupe{
+      color: var(--secondary-color);
+    }
+    .accueil{
+      display: block;
+    }
+    .toggle-btn {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 20px;
+    }
+    nav {
+      position: absolute;
+      top: 0;
+      background-color: blueviolet;
+      transform: translateX(-1000px);
+      margin-top: 17vh;
+      height: 83vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .onglets{
+      padding-left: 0;
+      width: 300px;
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+    }
+    .onglets > li {
+      margin-right: 20px;
+      margin-left: 20px;
+      display: flex;
+      justify-content: space-around;
+      height:300px;
+    }
+    .onglets > li > a > p{
+      color: white;
+    }
+    .style:after {
+      background-color: white;
+    }
+    .active .social-media-header{
+      position: absolute;
+      bottom: 0;
+      padding-left: 0;
+      width: 300px;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+    }
+    .active .social-media-header > li{
+      margin-right: 10px;
+      margin-left: 10px;
+      list-style: none;
+    }
+  
+    .toggle-btn .crossBurger {
+      display: none;
+    }
+  
+    .active nav {
+      transform: translateX(0);
+      transition: 1s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+    }
+  
+    .active .burger {
+      display: none;
+    }
+    .active .crossBurger {
+      display: block;
+    }
+  }
+  

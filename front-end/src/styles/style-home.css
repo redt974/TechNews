@@ -1,0 +1,146 @@
+/* https://www.1001fonts.com/digital+clock-fonts.html */
+
+/* Balises :*/
+ a{
+  text-decoration: inherit;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  font-size: large;
+  color: var(--secondary-color);
+}
+h1 {
+  font-size: 50px;
+  text-align: center;
+  text-decoration: underline;
+  text-decoration-color: blueviolet;
+  color: var(--secondary-color);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Page Accueil :*/
+
+#page {
+  margin-top: -65px;
+  text-decoration: var(--secondary-color);
+}
+
+.part-un {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 75px;
+}
+
+
+/* Partie 1*/
+
+/* Article 1 */
+
+.block {
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-image: url("../Assets/jpt-hero-desktop_.jpg"); 
+  background-repeat: no-repeat;
+  border-radius: 15px;
+  width: 592px;
+  height: 590px;
+  transition: 0.1s;
+}
+.part-right{
+  margin-right: 10px;
+  margin-left: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.titre {
+  margin: 0;
+  padding-top: 200px;
+  position: static;
+  font-size: 2.5rem;
+  font-weight: bolder;
+  color: white;
+  background-color: transparent;
+  font-family: "Poppins", sans-serif;
+}
+.titre-sous-texte {
+  position: static;
+  font-size: 1rem;
+  color: white;
+  background-color: transparent;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Article 2 et 3*/
+
+.block-un {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  margin-left: 10px;
+  margin-right: 10px;
+  background-image: url("../Assets/emma-matelas-carton_\(1\).png");
+  width: 592px;
+  height: 285px;
+  border-radius: 15px;
+  transition: 0.1s;
+
+}
+.block-deux {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  margin-left: 10px;
+  margin-right: 10px;
+  background-image: url("../Assets/wework.jpg");
+  width: 592px;
+  height: 285px;
+  border-radius: 15px;
+  transition: 0.1s;
+
+}
+.second-titre {
+  margin-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  position: static;
+  font-size: 2rem;
+  font-weight: bolder;
+  color: white;
+  background-color: transparent;
+  font-family: "Poppins", sans-serif;
+}
+
+.block:hover, .block-un:hover, .block-deux:hover{
+  box-shadow: var(--box-shadow);
+}
+
+/* Partie 2*/
+
+.part-deux {
+  margin: 40px 0;
+  gap: 20px;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/*Responsive :*/
+
+@media screen and (max-width: 1350px) {
+  .part-un{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .part-right, .part-left{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+}
+
