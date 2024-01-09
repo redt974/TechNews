@@ -1,25 +1,59 @@
+import React from 'react';
+import { useNavigate } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import "../styles/style-connexion.css";
-import React, { useState } from 'react';
 import Header from '../components/header';
 import Footer from '../components/footer';
 
 function Contact() {
-  const [firstName, setFirstName] = useState('');
-  const [surname, setSurname] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      surname: '',
+      email: '',
+      message: '',
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required('Ce champ est requis'),
+      surname: Yup.string().required('Ce champ est requis'),
+      email: Yup.string().email('Format d\'email invalide').required('Ce champ est requis'),
+      message: Yup.string().required('Ce champ est requis'),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const response = await fetch('http://localhost:3001/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values),
+        });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+        const data = await response.json();
 
-    // Ajoutez ici la logique pour soumettre le formulaire, par exemple, envoyer les données au backend.
-    console.log({ firstName, surname, email, message });
+        if (response.ok) {
+          navigate("/");
+          alert("Message Envoyé!");
+          formik.resetForm();
+        } else {
+          // Gérer l'échec de l'envoi du message (par exemple, afficher un message d'erreur)
+          console.error('L\'envoi du message a échoué:', data.error || data.message);
+        }
+      } catch (error) {
+        // Gérer les erreurs lors de l'envoi de la requête
+        console.error('Erreur lors de l\'envoi du message :', error);
+      }
+    },
+  });
 
-    // Réinitialisez les champs après la soumission si nécessaire
-    setFirstName('');
-    setSurname('');
-    setEmail('');
-    setMessage('');
+  const { handleSubmit, handleChange, handleBlur, values, touched, errors } = formik;
+
+  const renderErrorMessage = (field) => {
+    return touched[field] && errors[field] && (
+      <div className="error-message">{errors[field]}</div>
+    );
   };
 
   return (
@@ -33,38 +67,50 @@ function Contact() {
               <input
                 type="text"
                 placeholder="First name"
+                name="firstName"
                 required
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.firstName}
               />
+              {renderErrorMessage('firstName')}
             </div>
             <div className="input-box">
               <input
                 type="text"
                 placeholder="Surname"
+                name="surname"
                 required
-                value={surname}
-                onChange={(e) => setSurname(e.target.value)}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.surname}
               />
+              {renderErrorMessage('surname')}
             </div>
             <div className="input-box">
               <input
                 type="email"
                 placeholder="Email address"
+                name="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.email}
               />
+              {renderErrorMessage('email')}
               <i className="fa-regular fa-envelope fa-lg"></i>
             </div>
             <div className="input-box">
               <input
                 type="text"
                 placeholder="Your Message"
+                name="message"
                 required
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.message}
               />
+              {renderErrorMessage('message')}
             </div>
             <button type="submit" className="btn">
               Send Message

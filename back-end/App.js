@@ -1,102 +1,162 @@
-const { DataTypes } = require('sequelize');
+// App.js
+const express = require("express");
+const session = require("express-session");
+const mysql = require("mysql");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const { body, validationResult } = require("express-validator");
 const bcrypt = require('bcrypt');
-const express = require('express');
-const { Sequelize } = require('sequelize');
-const config = require('./config.json');
-const utilisateurModel = require('./models/utilisateur');
-const cors = require('cors');
-
-// Configuration de l'application Express :
-const app = express();
 const port = 3001;
 
-// Configuration de Sequelize :
-const sequelize = new Sequelize(config.development);
-const Utilisateur = utilisateurModel(sequelize);
+const app = express();
 
-// Utilisation de CORS après l'initialisation d'app
-app.use(cors());
+app.use(session({
+  secret: 'K3@VDTmUQEHs.Y;', 
+  resave: false,
+  saveUninitialized: true,
+}));
 
-app.use(express.json());
-
-// Endpoint pour la route racine ("/")
-app.get('/', (res) => {
-  res.send('Bienvenue sur votre application !');
+const db = mysql.createConnection({
+  host: 'localhost',
+  port: '8889',
+  user: 'root',
+  password: 'root',
+  database: 'technews',
 });
 
-// Endpoint pour créer un utilisateur (inscription)
-app.post('/inscription', async (req, res) => {
-  try {
-    console.log('Requête d\'inscription reçue avec les données :', req.body);
+db.connect((err) => {
+  if (err) {
+    console.error("Erreur de connexion : " + err.stack);
+    process.exit(1);
+  }
+  console.log("Connexion réussie à la base de données !");
+});
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true,
+}));
+
+app.get('/', (req, res) => {
+  res.send('Bienvenue sur le serveur TechNews !');
+});
+
+// Gestionnaire de route pour Inscription.js
+app.get('/inscription', (req, res) => {
+  res.send("Bienvenue sur la page d'inscription !");
+});
+
+app.post('/inscription', 
+  [
+    // Valider les champs requis
+    body('prenom').notEmpty().trim().escape(),
+    body('nom').notEmpty().trim().escape(),
+    body('email').isEmail().normalizeEmail(),
+    body('motDePasse').isLength({ min: 6 }).trim().escape(),
+  ],
+  async (req, res) => {
+    console.log('Requête d\'inscription reçue. Données reçues:', req.body);
     const { prenom, nom, email, motDePasse } = req.body;
-    const utilisateur = await Utilisateur.create({ prenom, nom, email, motDePasse });
-    console.log('Utilisateur créé avec succès :', utilisateur);
-    res.json(utilisateur);
-  } catch (error) {
-    console.error('Erreur lors de l\'inscription :', error);
-    console.error('Détails de l\'erreur Sequelize :', error.errors);
-    res.status(500).json({ error: 'Erreur serveur', details: error.message });
+
+    try {
+      // Valider les erreurs de validation
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array(), message: 'Validation des données échouée' });
+      }
+
+      // Hacher le mot de passe
+      const hashedPassword = await bcrypt.hash(motDePasse, 10); 
+
+      // Insérer l'utilisateur dans la base de données
+      const query = 'INSERT INTO inscription (prenom, nom, email, motDePasse) VALUES (?, ?, ?, ?)';
+      const values = [prenom, nom, email, hashedPassword];
+
+      db.query(query, values, (error, results) => {
+        if (error) {
+          console.error('Erreur lors de l\'inscription:', error);
+          res.status(500).json({ error: 'Erreur lors de l\'inscription', message: 'Erreur interne du serveur' });
+        } else {
+          console.log('Utilisateur inscrit avec succès:', results.insertId);
+          res.status(200).json({ message: 'Inscription réussie!' });
+        }
+      });
+    } catch (error) {
+      console.error('Erreur lors du hachage du mot de passe:', error);
+      res.status(500).json({ error: 'Erreur lors de l\'inscription', message: 'Erreur interne du serveur' });
+    }
   }
+);
+
+// Gestionnaire de route pour Connexion.js
+app.get('/connexion', (req, res) => {
+  res.send("Bienvenue sur la page de connexion !");
 });
 
-// Endpoint pour se connecter
 app.post('/connexion', async (req, res) => {
-  try {
-    const { email, motDePasse } = req.body;
+  const { email, motDePasse } = req.body;
+  const query = 'SELECT * FROM inscription WHERE email = ?';
+  const values = [email];
 
-    // Trouver l'utilisateur par email
-    const utilisateur = await Utilisateur.findOne({ where: { email } });
+  db.query(query, values, async (error, results) => {
+    if (error) {
+      console.error('Erreur lors de la connexion:', error);
+      res.status(500).json({ error: 'Erreur lors de la connexion', message: 'Erreur interne du serveur' });
+    } else {
+      if (results.length > 0) {
+        const passwordMatch = await bcrypt.compare(motDePasse, results[0].motDePasse);
 
-    // Vérifier si l'utilisateur existe
-    if (!utilisateur) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        if (passwordMatch) {
+          // Ajout de l'utilisateur à la session
+          req.session.userId = results[0].id;
+          console.log('Utilisateur connecté avec succès:', results[0].id);
+          res.status(200).json({ message: 'Connexion réussie!' });
+        } else {
+          console.log('Mot de passe incorrect.');
+          res.status(401).json({ error: 'Mot de passe incorrect', message: 'Échec de la connexion' });
+        }
+      } else {
+        console.log('Utilisateur non trouvé.');
+        res.status(401).json({ error: 'Utilisateur non trouvé', message: 'Échec de la connexion' });
+      }
     }
-
-    // Vérifier le mot de passe
-    const motDePasseValide = await bcrypt.compare(motDePasse, utilisateur.motDePasse);
-
-    if (!motDePasseValide) {
-      return res.status(401).json({ message: 'Mot de passe incorrect' });
-    }
-
-    // Authentification réussie
-    res.json({ message: 'Connexion réussie' });
-  } catch (error) {
-    console.error('Erreur lors de la connexion :', error);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-// Endpoint pour le formulaire de contact
-app.post('/contact', async (req, res) => {
-  try {
-    const { nom, email, sujet, message } = req.body;
-
-    // Exemple de sauvegarde dans la base de données (supposons que vous ayez un modèle Contact défini dans Sequelize) :
-    const Contact = sequelize.define('Contact', {
-      nom: { type: DataTypes.STRING, allowNull: false },
-      email: { type: DataTypes.STRING, allowNull: false },
-      sujet: { type: DataTypes.STRING, allowNull: false },
-      message: { type: DataTypes.TEXT, allowNull: false },
-    });
-
-    await Contact.create({ nom, email, sujet, message });
-
-    res.json({ message: 'Formulaire de contact soumis avec succès' });
-  } catch (error) {
-    console.error('Erreur lors de la soumission du formulaire de contact :', error);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-// Synchronisation avec la base de données :
-sequelize.sync({ force: false })
-  .then(() => {
-    console.log('Base de données synchronisée');
-    app.listen(port, () => {
-      console.log(`Serveur en écoute sur le port ${port}`);
-    });
-  })
-  .catch((err) => {
-    console.error('Erreur de synchronisation de la base de données :', err);
   });
+});
+
+// Gestionnaire de route pour contact.js
+app.get('/contact', (req, res) => {
+  res.send("Bienvenue sur la page de contact !");
+});
+
+app.post('/contact', (req, res) => {
+  const { firstName, surname, email, message } = req.body;
+  const query = 'INSERT INTO messages (inscription_id, message) VALUES (?, ?)';
+  const values = [firstName, surname, email, message];
+
+  db.query(query, values, (error, results) => {
+    if (error) {
+      console.error('Erreur lors de l\'envoi du message:', error);
+      res.status(500).json({ error: 'Erreur lors de l\'envoi du message', message: 'Erreur interne du serveur' });
+    } else {
+      console.log('Message envoyé avec succès:', results.insertId);
+      res.status(200).json({ message: 'Message envoyé avec succès!' });
+    }
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Serveur en ligne sur le port ${port}`);
+});
+
+process.on('SIGINT', () => {
+  console.log('Fermeture propre de la connexion MySQL');
+  db.end(() => {
+    process.exit();
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Erreur interne du serveur');
+});
